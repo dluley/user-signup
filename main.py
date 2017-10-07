@@ -3,20 +3,12 @@ import cgi
 import os
 import jinja2
 
-template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
-
-
-
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
-
-
 @app.route("/")
-def render_template():
-        template = jinja_env.get_template('index.html')
-        return template.render()
+def display_form():
+        return render_template('index.html', username='', username_error='', password='', password_error='', verify='', verify_error='', email='', email_error='')
 
 
 #@app.route('/')
@@ -24,25 +16,15 @@ def render_template():
         #return render_template('index.html')
         #return 'index.html'.format(username='', username_error='', password='',
                 #password_error='', verify='', verify_error='', email='', email_error='')
-@app.route('/validate-form') 
-def display_form():
-        return 'index.html'.format(username='',
-        username_error='',
-        pasword='',
-        password_error='',
-        verify='',
-        verify_error='',
-        email='',
-        email_error='')
 
-
+#@app.route('/validate-form') 
 
 def no_space(input):
-        for char in input:
-                if char == ' ' or len(input) == 0:
-                        return False
-                else:
-                        return True
+        if ' ' in input:
+                return False
+        else :
+                return True
+
 
 def is_correct(email):
         if '@' in email and '.' in email:
@@ -70,7 +52,7 @@ def validate_form():
                 username_error = ''
                 
         if len(username) < 3 or len(username) > 20:
-                username_error = 'Username must be between 3-20 characters'
+                username_error = 'Username must be between 3-20 characters, no spaces'
                 username = ''     
         else:
                  username_error = ''
@@ -82,7 +64,7 @@ def validate_form():
                 password_error = ''
         
         if len(password) < 3 or len(password) > 20:
-                password_error = 'Password must be between 3-20 characters'
+                password_error = 'Password must be between 3-20 characters, no spaces'
                 password = ''
         else:
                 password_error = ''
@@ -116,26 +98,16 @@ def validate_form():
         
         if not username_error and not password_error:
                 if not verify_error and not email_error:
-                        greeting = username
-                        return redirect('/valid-form?greeting={0}'.format(greeting))
-                                
+                        return render_template("welcome.html", username=username)
         else:
-                template = jinja_env.get_template('index.html')
-                return 'index.html'.format(username=username,
-                        username_error=username_error,
-                        password=password,
-                        password_error=password_error,
-                        verify=verify,
-                        verify_error=verify_error,
-                        email=email,
-                        email_error=email_error)
+                return render_template("index.html", username=username, username_error=username_error, password=password, password_error=password_error, verify=verify, verify_error=verify_error, email=email, email_error=email_error)
 
                 
-@app.route('/valid-form')
-def valid_form():
-        greeting = request.args.get('greeting')
-        template = jinja_env.get_template('welcome.html')
-        return template.render().format(greeting)
+#@app.route('/valid-form')
+#def valid_form():
+        #greeting = request.args.get('greeting')
+        #template = jinja_env.get_template('welcome.html')
+        #return template.render().format(greeting)
         #return '<h1>Welcome, {0} !</h1>'.format(greeting)
 
 
